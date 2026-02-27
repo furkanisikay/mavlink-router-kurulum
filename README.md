@@ -50,18 +50,6 @@ export UDP_ADDRESS=0.0.0.0
 export UDP_PORT=14550
 ```
 
-## Güvenlik Denetimi Sonucu
-
-- Depoda hardcoded parola, API anahtarı veya özel anahtar bulunamadı.
-- `kurulum.sh` içinde sabit UART/UDP değerleri çevre değişkenlerinden okunacak şekilde iyileştirildi.
-- Kod tabanında kullanıcıya özgü yerel dosya yolu (ör. `C:\Users\...`) tespit edilmedi.
-
-## Refactoring (Önerilen 3 Adım)
-
-1. **Kurulum adımlarını fonksiyonlaştırın:** Paket kurulumu, derleme ve servis yapılandırmasını ayrı fonksiyonlara bölerek bakım maliyetini azaltın.
-2. **Etkileşimli modu parametreleştirin:** `read` ile alınan kullanıcı kararını `--auto-config` gibi bayraklarla CI/CD ve uzaktan kurulumda otomasyona uygun hale getirin.
-3. **Dağıtım uyumluluğunu genişletin:** `apt` odaklı akışa ek olarak distro algılama ve paket yöneticisi soyutlaması ekleyin.
-
 ## Katkı
 
 Katkı süreci için [CONTRIBUTING.md](./CONTRIBUTING.md) dosyasına bakın.
