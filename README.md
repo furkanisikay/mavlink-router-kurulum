@@ -7,7 +7,9 @@
 
 ## Neden Bu Proje?
 
-Bu proje, MAVLink Router kurulumunu manuel adımlardan çıkarıp tek bir script ile tekrarlanabilir, hızlı ve hataya daha dayanıklı hale getirir; özellikle drone/otonom sistem geliştirme süreçlerinde aynı kurulumu farklı cihazlara uygularken zaman kazandırır ve operasyonel tutarlılığı artırır.
+Bu proje, MAVLink Router kurulumunu manuel adımlardan çıkarıp tek bir script ile tekrarlanabilir hale getirir.
+Kurulum daha hızlı ve hataya daha dayanıklı olur.
+Özellikle drone/otonom sistem geliştirme süreçlerinde farklı cihazlara aynı kurulumu uygularken zaman kazandırır ve operasyonel tutarlılığı artırır.
 
 ## Mimari / Özellikler
 
@@ -26,6 +28,8 @@ cd mavlink-router-kurulum
 chmod +x kurulum.sh
 ./kurulum.sh
 ```
+
+> Not: Script kurulum sırasında `sudo` yetkisi ister.
 
 Kurulum sonrası örnek doğrulama:
 
@@ -52,10 +56,10 @@ export UDP_PORT=14550
 - `kurulum.sh` içinde sabit UART/UDP değerleri çevre değişkenlerinden okunacak şekilde iyileştirildi.
 - Kod tabanında kullanıcıya özgü yerel dosya yolu (ör. `C:\Users\...`) tespit edilmedi.
 
-## Refactoring (Kritik 3 Adım)
+## Refactoring (Önerilen 3 Adım)
 
 1. **Kurulum adımlarını fonksiyonlaştırın:** Paket kurulumu, derleme ve servis yapılandırmasını ayrı fonksiyonlara bölerek bakım maliyetini azaltın.
-2. **Konfigürasyon üretimini tek yönlendirme bloğuna taşıyın:** Çoklu `echo >> main.conf` yerine tek heredoc/blok yaklaşımıyla okunabilirliği artırın.
+2. **Etkileşimli modu parametreleştirin:** `read` ile alınan kullanıcı kararını `--auto-config` gibi bayraklarla CI/CD ve uzaktan kurulumda otomasyona uygun hale getirin.
 3. **Dağıtım uyumluluğunu genişletin:** `apt` odaklı akışa ek olarak distro algılama ve paket yöneticisi soyutlaması ekleyin.
 
 ## Katkı

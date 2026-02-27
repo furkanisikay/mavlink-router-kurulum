@@ -3,7 +3,7 @@ set -e
 
 # Scriptin çalıştırılabilme izni kontrolü
 if ! command -v sudo >/dev/null 2>&1; then
-  echo "Bu script için 'sudo' gereklidir. Lütfen sudo kurup tekrar deneyin."
+  echo "'sudo' komutu bulunamadı. Lütfen sudo paketini kurup tekrar deneyin."
   exit 1
 fi
 
@@ -23,7 +23,11 @@ git submodule update --init --recursive
 
 # Kütüphanenin derlenmesi ve kurulumu
 echo "Kütüphane derleniyor ve kuruluyor..."
-meson setup build
+if [ -d build ]; then
+  meson setup build --reconfigure
+else
+  meson setup build
+fi
 ninja -C build
 sudo ninja -C build install
 
@@ -41,11 +45,40 @@ if [[ $cevap =~ ^[Yy]$ ]]; then
   UDP_ADDRESS="${UDP_ADDRESS:-0.0.0.0}"
   UDP_PORT="${UDP_PORT:-14550}"
 
+  if ! [[ "$UART_DEVICE" =~ ^/dev/[A-Za-z0-9._-]+$ ]]; then
+    echo "Geçersiz UART_DEVICE değeri: $UART_DEVICE"
+    exit 1
+  fi
+
+  if ! [[ "$UART_BAUD" =~ ^[0-9]+$ ]]; then
+    echo "Geçersiz UART_BAUD değeri: $UART_BAUD"
+    exit 1
+  fi
+
+  if [[ "$UDP_ADDRESS" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    IFS='.' read -r -a ip_parts <<<"$UDP_ADDRESS"
+    for ip_part in "${ip_parts[@]}"; do
+      if ((ip_part > 255)); then
+        echo "Geçersiz UDP_ADDRESS değeri: $UDP_ADDRESS"
+        exit 1
+      fi
+    done
+  # Hostname için: etiketler harf/rakam ile başlar-biter, arada tire olabilir, noktayla ayrılır.
+  elif ! [[ "$UDP_ADDRESS" =~ ^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*$ ]]; then
+    echo "Geçersiz UDP_ADDRESS değeri: $UDP_ADDRESS"
+    exit 1
+  fi
+
+  if ! [[ "$UDP_PORT" =~ ^[0-9]+$ ]] || ((UDP_PORT < 1 || UDP_PORT > 65535)); then
+    echo "Geçersiz UDP_PORT değeri: $UDP_PORT"
+    exit 1
+  fi
+
   # Gerekli dizinleri ve dosyaları oluştur
   sudo mkdir -p /etc/mavlink-router
 
   # Yapılandırma dosyasına gerekli bilgileri ekle
-  sudo tee /etc/mavlink-router/main.conf >/dev/null <<EOF
+  sudo tee /etc/mavlink-router/main.conf <<EOF
 [General]
 TcpServerPort=5760
 ReportStats=false
